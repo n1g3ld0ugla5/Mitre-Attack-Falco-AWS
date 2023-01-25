@@ -119,6 +119,7 @@ Please note that this is just one example of an Account Discovery technique, the
   
 # This rule will detect a root login without Multi-Factor Authentication (MFA)
 # Still struggling to understand how this is account access removal since the user was successfully able to log in
+# https://docs.sysdig.com/en/docs/sysdig-secure/sysdig-secure-for-cloud/aws/aws-cloudtrail-falco-rules/#console
 
 
 
