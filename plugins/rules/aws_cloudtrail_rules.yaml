@@ -1,0 +1,12 @@
+- rule: Drive-by Compromise in AWS
+  desc: Detects suspicious behavior in AWS that may indicate a Drive-by Compromise
+  condition: (event.event_name in (CreateAccessKey, DeleteAccessKey, CreateUser, DeleteUser) or event.event_name starts with "Attach") and event.source_ip != "172.31.0.0/16"
+  output: "Drive-by Compromise in AWS detected from IP address: %event.source_ip% for user: %event.user_identity.user_name%"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [initial_access, drive_by_compromise, T1189]
+  
+# This rule checks for events with the name "CreateAccessKey", "DeleteAccessKey", "CreateUser", "DeleteUser" and "Attach" in the AWS CloudTrail event
+# It also checks that the source IP is not from the VPC range (172.31.0.0/16)
+# If it matches, it triggers an alert with the message "Drive-by Compromise in AWS detected from "IP address" for "user" with priority WARNING.
+
