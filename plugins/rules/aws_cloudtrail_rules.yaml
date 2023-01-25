@@ -35,6 +35,14 @@
 # The rule checks for suspicious events within the AWS CloudTrail event, and it also checks that the event was not performed by the root user.
 # If it matches, it triggers an alert with the message "Account Manipulation in AWS detected from user" - This is a critical alert criteria.
 
-
+- rule: Detect Domain Policy Modification
+  desc: Detects when a domain policy is modified
+  condition: evt.type = S3_EVENT and (evt.name = PutBucketPolicy or evt.name = DeleteBucketPolicy) and evt.bucket = "your-bucket-name-here"
+  output: "Domain policy modification detected in bucket: your-bucket-name-here"
+  source: aws_cloudtrail
+  priority: WARNING
   
-  
+# This rule uses the evt.type and evt.name fields to check for events of type "S3_EVENT" and with the name "PutBucketPolicy" or "DeleteBucketPolicy". 
+# It also checks that the event is for a specific bucket by using the evt.bucket field. 
+# Please note that, you need to replace the your-bucket-name-here with the actual name of your S3 bucket
+# You also need to configure the AWS Cloudtrail to send the logs to a S3 bucket and then configure the Falco to read the logs from that S3 bucket.
