@@ -10,3 +10,17 @@
 # It also checks that the source IP is not from the VPC range (172.31.0.0/16)
 # If it matches, it triggers an alert with the message "Drive-by Compromise in AWS detected from "IP address" for "user" with priority WARNING.
 
+- rule: Detect Serverless Execution from Lambda
+  desc: Detects serverless execution in AWS Lambda
+  condition: event.event_name = "CreateFunction" and event.request_parameters.function_name starts with "lambda"
+  output: "Serverless execution detected in AWS Lambda function: %event.request_parameters.function_name%"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [execution, serverless_execution, T1648]  
+
+# This rule checks for events with the name "CreateFunction" in the aws_cloudtrail event, and it also checks that the function_name starts with "lambda". 
+# This will detect the creation of Lambda function but it won't give you the detailed information such as: 
+# - the execution of the function
+# - the input and output parameters
+# - or the response. 
+# To have more detailed information, you can use CloudWatch Logs, CloudWatch events, X-Ray, or other third-party tools in conjunction with CloudTrail.
