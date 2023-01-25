@@ -46,3 +46,14 @@
 # It also checks that the event is for a specific bucket by using the evt.bucket field. 
 # Please note that, you need to replace the your-bucket-name-here with the actual name of your S3 bucket
 # You also need to configure the AWS Cloudtrail to send the logs to a S3 bucket and then configure the Falco to read the logs from that S3 bucket.
+
+- rule: Detect AWS Brute Force
+  desc: Detects multiple failed login attempts within a short period of time
+  condition: (evt.type = cloudtrail and evt.source = aws_cloudtrail and evt.event.eventname = ConsoleLogin and evt.event.errorcode = "FailedAuthentication") or (evt.type = cloudtrail and evt.source = aws_cloudtrail and evt.event.eventname = "GetSessionToken" and evt.event.errorcode = "AccessDenied")
+  output: "Brute force attack detected on AWS console login or session token request"
+  priority: ERROR
+  source: aws_cloudtrail
+
+# This rule checks for events of type "cloudtrail" with source "aws_cloudtrail" & eventname "ConsoleLogin" or "GetSessionToken" with errorcodes
+# The error codes "FailedAuthentication" or "AccessDenied" respectively have to be triggered within a short period of time. 
+# If the rule matches, it will output the message "Brute force attack detected on AWS console login or session token request"
