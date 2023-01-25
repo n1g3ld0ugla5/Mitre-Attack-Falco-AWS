@@ -96,7 +96,9 @@ Please note that this is just one example of an Account Discovery technique, the
   source: aws_cloudtrail
   tags: [collection, automated_collection, T1119]
 
-
+# This rule will trigger a warning when it detects an event with the name "CreateFunction" or "InvokeFunction" in the AWS CloudTrail logs.
+# These indicate the use of AWS Lambda, a service that allows the creation & execution of scripts, that can be used to automate the collection of data. 
+# Additionally, the rule will output the user, action, and the name of the function that was created or invoked.
 
 
 
