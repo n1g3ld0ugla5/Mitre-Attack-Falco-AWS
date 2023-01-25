@@ -60,3 +60,11 @@
 # This rule checks for events of type "cloudtrail" with source "aws_cloudtrail" & eventname "ConsoleLogin" or "GetSessionToken" with errorcodes
 # The error codes "FailedAuthentication" or "AccessDenied" respectively have to be triggered within a short period of time. 
 # If the rule matches, it will output the message "Brute force attack detected on AWS console login or session token request"
+
+- rule: Account Discovery in AWS
+  desc: Detects attempts to discover AWS accounts through the use of the 'ListAccounts' action
+  condition: aws_cloudtrail.event.eventName = "ListAccounts"
+  output: "Detected Account Discovery attempt in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% region=%aws_cloudtrail.aws_region%"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [discovery, account_discovery, T1087]
