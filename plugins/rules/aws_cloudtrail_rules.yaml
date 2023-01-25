@@ -69,7 +69,10 @@
   source: aws_cloudtrail
   tags: [discovery, account_discovery, T1087]
   
-  
+# The rule will trigger a warning when it detects an event with the name "ListAccounts" in the AWS CloudTrail logs
+# This is an indication of an attempt to discover AWS accounts. Additionally, the rule will output the user, action & region information for the event.
+
+Please note that this is just one example of an Account Discovery technique, there are many other techniques and ways to detect them, this rule should be used as an example and not as a definitive solution.  
   
 - rule: Internal Spearphishing in AWS
   desc: Detects attempts to perform internal spearphishing through the use of email services in AWS
@@ -77,6 +80,7 @@
   output: "Detected Internal Spearphishing attempt in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% recipients=%aws_cloudtrail.request_parameters.Destination.ToAddresses%"
   priority: WARNING
   source: aws_cloudtrail
+  tags: [lateral_movement, internal_spearphishing, T1534]  
   
 # This rule will trigger a warning when it detects an event with the name "SendEmail" in the AWS CloudTrail logs
 # The recipients of the email contain the word "internal", which is an indication of an attempt to perform internal spearphishing. 
@@ -84,6 +88,13 @@
 # Please note that this is just one example of an Internal Spearphishing technique, there are many other techniques and ways to detect them
 # This rule should be used as an example and not as a definitive solution.
 
+- rule: Automated Collection in AWS
+  desc: Detects attempts to perform automated collection through the use of AWS Lambda
+  condition: aws_cloudtrail.event.eventName = "CreateFunction" or aws_cloudtrail.event.eventName = "InvokeFunction"
+  output: "Detected Automated Collection attempt in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% function=%aws_cloudtrail.request_parameters.FunctionName%"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [collection, automated_collection, T1119]
 
 
 
