@@ -100,6 +100,26 @@ Please note that this is just one example of an Account Discovery technique, the
 # These indicate the use of AWS Lambda, a service that allows the creation & execution of scripts, that can be used to automate the collection of data. 
 # Additionally, the rule will output the user, action, and the name of the function that was created or invoked.
 
+- rule: Console Root Login Without MFA
+  desc: Detect root console login without MFA.
+  condition:
+    ct.name="ConsoleLogin" and not ct.error exists
+    and json.value[/additionalEventData/MFAUsed]="No"
+    and ct.user.identitytype!="AssumedRole"
+    and json.value[/responseElements/ConsoleLogin]="Success"
+    and ct.user.identitytype="Root"
+  output:
+    Detected a root console login without MFA.
+    (requesting user=%ct.user,
+     requesting IP=%ct.srcip,
+     AWS region=%ct.region)
+  priority: CRITICAL
+  source: aws_cloudtrail  
+  tags: [impact, account_access_removal, T1531]
+  
+# This rule will detect a root login without Multi-Factor Authentication (MFA)
+# Still struggling to understand how this is account access removal since the user was successfully able to log in
+
 
 
 
