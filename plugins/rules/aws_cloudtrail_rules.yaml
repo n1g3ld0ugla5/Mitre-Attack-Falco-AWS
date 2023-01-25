@@ -68,3 +68,26 @@
   priority: WARNING
   source: aws_cloudtrail
   tags: [discovery, account_discovery, T1087]
+  
+  
+  
+- rule: Internal Spearphishing in AWS
+  desc: Detects attempts to perform internal spearphishing through the use of email services in AWS
+  condition: aws_cloudtrail.event.eventName = "SendEmail" and aws_cloudtrail.request_parameters.Destination.ToAddresses contains "internal"
+  output: "Detected Internal Spearphishing attempt in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% recipients=%aws_cloudtrail.request_parameters.Destination.ToAddresses%"
+  priority: WARNING
+  source: aws_cloudtrail
+  
+# This rule will trigger a warning when it detects an event with the name "SendEmail" in the AWS CloudTrail logs
+# The recipients of the email contain the word "internal", which is an indication of an attempt to perform internal spearphishing. 
+# Additionally, the rule will output the user, action and recipient information for the event.
+# Please note that this is just one example of an Internal Spearphishing technique, there are many other techniques and ways to detect them
+# This rule should be used as an example and not as a definitive solution.
+
+
+
+
+
+
+
+
