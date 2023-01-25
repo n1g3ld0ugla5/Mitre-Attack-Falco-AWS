@@ -14,7 +14,7 @@
   desc: Detects serverless execution in AWS Lambda
   condition: event.event_name = "CreateFunction" and event.request_parameters.function_name starts with "lambda"
   output: "Serverless execution detected in AWS Lambda function: %event.request_parameters.function_name%"
-  priority: WARNING
+  priority: INFO
   source: aws_cloudtrail
   tags: [execution, serverless_execution, T1648]  
 
@@ -24,3 +24,17 @@
 # - the input and output parameters
 # - or the response. 
 # To have more detailed information, you can use CloudWatch Logs, CloudWatch events, X-Ray, or other third-party tools in conjunction with CloudTrail.
+
+- rule: Detect Account Manipulation in AWS
+  desc: Detects suspicious behavior in AWS that may indicate Account Manipulation
+  condition: event.event_name in (CreateAccessKey, DeleteAccessKey, CreateUser, DeleteUser, EnableMFADevice, DisableMFADevice, CreatePolicy, DeletePolicy) and event.user_identity.user_name != "root"
+  output: "Account Manipulation in AWS detected from user: %event.user_identity.user_name% for event: %event.event_name%"
+  source: aws_cloudtrail
+  priority: CRITICAL
+  
+# The rule checks for suspicious events within the AWS CloudTrail event, and it also checks that the event was not performed by the root user.
+# If it matches, it triggers an alert with the message "Account Manipulation in AWS detected from user" - This is a critical alert criteria.
+
+
+  
+  
