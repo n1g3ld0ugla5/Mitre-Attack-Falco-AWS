@@ -121,6 +121,19 @@ Please note that this is just one example of an Account Discovery technique, the
 # Still struggling to understand how this is account access removal since the user was successfully able to log in
 # https://docs.sysdig.com/en/docs/sysdig-secure/sysdig-secure-for-cloud/aws/aws-cloudtrail-falco-rules/#console
 
+- rule: Data Exfiltration to Cloud Account in AWS
+  desc: Detects attempts to exfiltrate data to a cloud storage service
+  condition: aws_cloudtrail.event.eventName = "PutObject" and ( aws_cloudtrail.request_parameters.Bucket contains "cloud" or aws_cloudtrail.request_parameters.Key contains "cloud")
+  output: "Detected Data Exfiltration attempt to cloud storage service in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% bucket=%aws_cloudtrail.request_parameters.Bucket% key=%aws_cloudtrail.request_parameters.Key%"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [exfiltration, transfer_data_to_cloud_account, T1537]
+
+# This rule triggers when it detects event with name "PutObject" in AWS CloudTrail logs, & name of bucket/key (file name) contain the word "cloud". 
+# Possible indication of attempt to exfiltrate data to a cloud storage service. 
+# Additionally, the rule will output the user, action, bucket and key information for the event.
+# Please note that this is just one example of a Transfer Data to Cloud Account technique
+# There are many other techniques and ways to detect them, this rule should be used as an example and not as a definitive solution.
 
 
 
