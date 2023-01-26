@@ -63,7 +63,7 @@
 
 - rule: Account Discovery in AWS
   desc: Detects attempts to discover AWS accounts through the use of the 'ListAccounts' action
-  condition: aws_cloudtrail.event.eventName = "ListAccounts"
+  condition: aws.event.eventName = "ListAccounts"
   output: "Detected Account Discovery attempt in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% region=%aws_cloudtrail.aws_region%"
   priority: WARNING
   source: aws_cloudtrail
@@ -76,7 +76,7 @@ Please note that this is just one example of an Account Discovery technique, the
   
 - rule: Internal Spearphishing in AWS
   desc: Detects attempts to perform internal spearphishing through the use of email services in AWS
-  condition: aws_cloudtrail.event.eventName = "SendEmail" and aws_cloudtrail.request_parameters.Destination.ToAddresses contains "internal"
+  condition: aws.event.eventName = "SendEmail" and aws.request_parameters.Destination.ToAddresses contains "internal"
   output: "Detected Internal Spearphishing attempt in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% recipients=%aws_cloudtrail.request_parameters.Destination.ToAddresses%"
   priority: WARNING
   source: aws_cloudtrail
@@ -90,7 +90,7 @@ Please note that this is just one example of an Account Discovery technique, the
 
 - rule: Automated Collection in AWS
   desc: Detects attempts to perform automated collection through the use of AWS Lambda
-  condition: aws_cloudtrail.event.eventName = "CreateFunction" or aws_cloudtrail.event.eventName = "InvokeFunction"
+  condition: aws.event.eventName = "CreateFunction" or aws.event.eventName = "InvokeFunction"
   output: "Detected Automated Collection attempt in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% function=%aws_cloudtrail.request_parameters.FunctionName%"
   priority: WARNING
   source: aws_cloudtrail
@@ -124,7 +124,7 @@ Please note that this is just one example of an Account Discovery technique, the
 
 - rule: Transfer Data to Cloud Account
   desc: Detects attempts to exfiltrate data to a cloud storage service
-  condition: aws_cloudtrail.event.eventName = "PutObject" and ( aws_cloudtrail.request_parameters.Bucket contains "cloud" or aws_cloudtrail.request_parameters.Key contains "cloud")
+  condition: aws.event.eventName = "PutObject" and ( aws.request_parameters.Bucket contains "cloud" or aws.request_parameters.Key contains "cloud")
   output: "Detected Data Exfiltration attempt to cloud storage service in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% bucket=%aws_cloudtrail.request_parameters.Bucket% key=%aws_cloudtrail.request_parameters.Key%"
   priority: WARNING
   source: aws_cloudtrail
@@ -139,7 +139,7 @@ Please note that this is just one example of an Account Discovery technique, the
 
 - rule: Exploit Public-Facing Application
   desc: Detects attempts to exploit a public-facing application on AWS
-  condition: cloudtrail_event.event_name = "RunInstances" and cloudtrail_event.user_identity.type = "IAMUser" and cloudtrail_event.request_parameters.image_id = "ami-*"
+  condition: aws.eventName = "RunInstances" and aws_event.user_identity.type = "IAMUser" and aws_event.request_parameters.image_id = "ami-*"
   output: "Exploit Public-Facing Application detected for user %user.name% with image_id %cloudtrail_event.request_parameters.image_id%"
   priority: WARNING
   source: aws_cloudtrail  
@@ -151,7 +151,7 @@ Please note that this is just one example of an Account Discovery technique, the
 
 - rule: Detect User Execution
   desc: Detects user execution on AWS
-  condition: cloudtrail_event.event_name = "RunCommand" and cloudtrail_event.user_identity.type = "IAMUser" and cloudtrail_event.request_parameters.commands contains "*"
+  condition: aws.eventName = "RunCommand" and aws.user_identity.type = "IAMUser" and aws_event.request_parameters.commands contains "*"
   output: "User Execution detected for user %user.name% with command %cloudtrail_event.request_parameters.commands%"
   priority: WARNING
   source: aws_cloudtrail  
@@ -180,7 +180,7 @@ Please note that this is just one example of an Account Discovery technique, the
 
 - rule: Detect Event-Triggered Execution
   desc: Detects event-triggered execution, which can be used for privilege escalation
-  condition: aws_cloudtrail.event_name contains "RunCommand" or aws_cloudtrail.event_name contains "Invoke"
+  condition: aws.eventName contains "RunCommand" or aws.eventName contains "Invoke"
   output: "Detected event-triggered execution (user: %user% command: %aws_cloudtrail.command%)"
   priority: WARNING
   source: aws_cloudtrail
@@ -192,7 +192,7 @@ Please note that this is just one example of an Account Discovery technique, the
   
 - rule: Detect CloudTrail Logs Deletion
   desc: Detects deletion of CloudTrail logs, which can be used for defense evasion
-  condition: aws_cloudtrail.event_name contains "DeleteTrail"
+  condition: aws.eventName contains "DeleteTrail"
   output: "Detected deletion of CloudTrail logs (user: %user% trail_name: %aws_cloudtrail.trail_name%)"
   priority: WARNING
   source: aws_cloudtrail
@@ -203,7 +203,7 @@ Please note that this is just one example of an Account Discovery technique, the
 
 - rule: Detect IAM User Modification
   desc: Detects modification of IAM users, which can be used to forge web credentials
-  condition: aws_cloudtrail.event_name contains "UpdateUser"
+  condition: aws.eventName contains "UpdateUser"
   output: "Detected modification of IAM user (user: %user% user_name: %aws_cloudtrail.user_name%)"
   priority: WARNING
   enabled: false
@@ -236,7 +236,7 @@ Please note that this is just one example of an Account Discovery technique, the
 
 - rule: Detect S3 Bucket Policy Modification
   desc: Detects modification of S3 bucket policy, which can be used to taint shared content
-  condition: aws_cloudtrail.event_name contains "PutBucketPolicy"
+  condition: aws.eventName contains "PutBucketPolicy"
   output: "Detected modification of S3 bucket policy (user: %user% bucket_name: %aws_cloudtrail.bucket_name%)"
   priority: WARNING
   source: aws_cloudtrail
@@ -249,7 +249,7 @@ Please note that this is just one example of an Account Discovery technique, the
 
 - rule: Detect S3 Bucket Listing
   desc: Detects listing of S3 buckets, which can be used for data collection from cloud accounts
-  condition: aws_cloudtrail.event_name contains "ListBuckets"
+  condition: aws.eventName contains "ListBuckets"
   output: "Detected listing of S3 buckets (user: %user%)"
   priority: WARNING
   source: aws_cloudtrail
@@ -261,7 +261,7 @@ Please note that this is just one example of an Account Discovery technique, the
   
 - rule: Detect Phishing Attempts
   desc: Phishing attempts may be logged in CloudTrail events
-  condition: cloudtrail.event_name = CreateBucket and cloudtrail.request_parameters.bucket_name matches "phish*"
+  condition: aws.eventName = CreateBucket and aws.request_parameters.bucket_name matches "phish*"
   output: "Possible phishing attempt detected via CloudTrail event (user=%user.name event_name=%cloudtrail.event_name bucket_name=%cloudtrail.request_parameters.bucket_name)"
   priority: INFO
   source: aws_cloudtrail  
@@ -271,5 +271,16 @@ Please note that this is just one example of an Account Discovery technique, the
 # This is a simple idea and likely would not catch any real-world phishing attempts
 # https://attack.mitre.org/techniques/T1566/
 
+- rule: Password Recovery Requested for Valid Account
+  desc: Adversaries may obtain credentials via password recovery workflow for existing accounts as a means of Privilege Escalation
+  condition: aws.eventName="PasswordRecoveryRequested" and not aws.errorCode exists
+  output: >-
+    An AWS IAM password recovery request has been detected. (requesting
+    user=%aws.user, requesting IP=%aws.sourceIP, AWS region=%aws.region,
+    arn=%jevt.value[/userIdentity/arn], password recovery
+    status=%jevt.value[/responseElements/PasswordRecoveryRequested])
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [initial_access, valid_accounts, A0001]
 
 
