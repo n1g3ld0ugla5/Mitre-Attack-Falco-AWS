@@ -200,6 +200,17 @@ Please note that this is just one example of an Account Discovery technique, the
 
 # Rules triggeres when an event with the name "DeleteTrail" is detected in the AWS CloudTrail logs
 # https://attack.mitre.org/techniques/T1564/
-# 
-  
+
+- rule: Detect IAM User Modification
+  desc: Detects modification of IAM users, which can be used to forge web credentials
+  condition: aws_cloudtrail.event_name contains "UpdateUser"
+  output: "Detected modification of IAM user (user: %user% user_name: %aws_cloudtrail.user_name%)"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [credential_access, forge_web_credentials, T1606]
+
+# Rule triggers when an event with the name "UpdateUser" is detected in AWS CloudTrail logs, which indicates that an IAM user was modified. 
+# The output message includes the user that modified the user, and the user_name of the IAM user that was modified.
+# It detects modification of all IAM users, if you want to detect the modification of specific IAM users, you can add more conditions to avoid false/positives
+# https://attack.mitre.org/techniques/T1606/  
   
