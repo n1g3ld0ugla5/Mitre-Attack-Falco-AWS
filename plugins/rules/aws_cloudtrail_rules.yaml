@@ -161,4 +161,20 @@ Please note that this is just one example of an Account Discovery technique, the
 # It will also include the user name and the command on the alert output.
 # https://attack.mitre.org/techniques/T1204/
 
+- rule: Create AWS user
+  desc: Detect creation of an IAM account.
+  condition:
+    ct.name="CreateUser" and not ct.error exists
+  output:
+    A new AWS user has been created
+    (requesting user=%ct.user,
+     requesting IP=%ct.srcip,
+     AWS region=%ct.region,
+     new user created=%ct.request.username)
+  priority: INFO
+  source: aws_cloudtrail
+  tags: [persistence, create_account, T1136]  
+
+# This rule is triggered when a new IAM account is created
+# https://attack.mitre.org/techniques/T1136/
 
