@@ -11,3 +11,4 @@ https://attack.mitre.org/matrices/enterprise/cloud/
 | <sub> Valid Accounts </sub> |  | <sub> Modify Auth Process </sub> |  | <sub>Modify Auth Process</sub> | <sub>Network Sniffing</sub> | <sub>Cloud Storage Object Discovery</sub> | | <sub>Email Collection</sub> |  | <sub>Endpoint Denial of Service</sub> |
 | |  | <sub> Office Application Startup </sub> |  | <sub>Modify Cloud Computer Infra</sub> | <sub>Steal App Access Token</sub> | <sub>Network Service Discovery</sub> | | <sub>Email Collection</sub> |  | <sub>Network Denial of Service</sub> |
 | | | <sub> Valid Accounts </sub> | | <sub> Unused / Unsupported Cloud Regions </sub> | <sub>Steal or Forge Auth Certs</sub> | <sub>Network Sniffing</sub> | | | | <sub>Resource Hijacking</sub> |
+| | | | | <sub>Use Alternate Auth Material</sub> | <sub>Steal Web Session Cookie</sub> | <sub>Password Policy Discovery</sub> | | | | |
