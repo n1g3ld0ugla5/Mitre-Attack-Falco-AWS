@@ -233,3 +233,19 @@ Please note that this is just one example of an Account Discovery technique, the
 # Alternatively, alert on event with the name "DescribeInstances" in the AWS CloudTrail logs, which indicates that an EC2 instances were listed.
 # Detect listing of S3 buckets or EC2 instances, which can be used for cloud infrastructure discovery
 # https://attack.mitre.org/techniques/T1580/
+
+- rule: Detect S3 Bucket Policy Modification
+  desc: Detects modification of S3 bucket policy, which can be used to taint shared content
+  condition: aws_cloudtrail.event_name contains "PutBucketPolicy"
+  output: "Detected modification of S3 bucket policy (user: %user% bucket_name: %aws_cloudtrail.bucket_name%)"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [lateral_movement, taint_shared_content, T1080]
+  
+# Rule triggers when an event with the name "PutBucketPolicy" is detected in the AWS CloudTrail logs, which indicates that S3 bucket policy was modified.
+# Rule detects the modification of policies of all S3 buckets. If you want to detect the modification of specific S3 buckets, you can add more conditions.
+# Keep in mind that this is just one example of how the technique could be implemented, in practice, it could be implemented in various ways.
+# https://attack.mitre.org/techniques/T1080/
+
+
+
