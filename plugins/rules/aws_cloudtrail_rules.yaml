@@ -118,10 +118,11 @@ Please note that this is just one example of an Account Discovery technique, the
   tags: [impact, account_access_removal, T1531]
   
 # This rule will detect a root login without Multi-Factor Authentication (MFA)
+# https://attack.mitre.org/techniques/T1531/
 # Still struggling to understand how this is account access removal since the user was successfully able to log in
 # https://docs.sysdig.com/en/docs/sysdig-secure/sysdig-secure-for-cloud/aws/aws-cloudtrail-falco-rules/#console
 
-- rule: Data Exfiltration to Cloud Account in AWS
+- rule: Transfer Data to Cloud Account
   desc: Detects attempts to exfiltrate data to a cloud storage service
   condition: aws_cloudtrail.event.eventName = "PutObject" and ( aws_cloudtrail.request_parameters.Bucket contains "cloud" or aws_cloudtrail.request_parameters.Key contains "cloud")
   output: "Detected Data Exfiltration attempt to cloud storage service in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% bucket=%aws_cloudtrail.request_parameters.Bucket% key=%aws_cloudtrail.request_parameters.Key%"
@@ -134,7 +135,15 @@ Please note that this is just one example of an Account Discovery technique, the
 # Additionally, the rule will output the user, action, bucket and key information for the event.
 # Please note that this is just one example of a Transfer Data to Cloud Account technique
 # There are many other techniques and ways to detect them, this rule should be used as an example and not as a definitive solution.
+# https://attack.mitre.org/techniques/T1537/
 
+- rule: Exploit Public-Facing Application
+  desc: Detects attempts to exploit a public-facing application on AWS
+  condition: cloudtrail_event.event_name = "RunInstances" and cloudtrail_event.user_identity.type = "IAMUser" and cloudtrail_event.request_parameters.image_id = "ami-*"
+  output: "Exploit Public-Facing Application detected for user %user.name% with image_id %cloudtrail_event.request_parameters.image_id%"
+  priority: WARNING
+  tags: [initial_access, exploit_public_facing_application, T1190]
 
-
-
+# This rule triggers an when the CloudTrail event "RunInstances" is detected and the user identity type is an IAM user 
+# The request parameters must have an image_id starting with 'ami-', it will also include the user name and the image_id in the output.
+# https://attack.mitre.org/techniques/T1190/
