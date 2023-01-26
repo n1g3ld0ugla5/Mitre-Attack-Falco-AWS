@@ -295,3 +295,19 @@ Please note that this is just one example of an Account Discovery technique, the
   
 # https://attack.mitre.org/techniques/T1556/
 
+- rule: Delete Group
+  desc: Detect deletion of a user group - Data Destruction
+  condition:
+    ct.name="DeleteGroup" and not ct.error exists
+  output:
+    A user group has been deleted.
+    (requesting user=%ct.user,
+     requesting IP=%ct.srcip,
+     AWS region=%ct.region,
+     group name=%ct.request.groupname)
+  priority: WARNING
+  source: aws_cloudtrail  
+  tags: [impact, data_destruction, T1485]
+  
+# https://attack.mitre.org/techniques/T1485/  
+
