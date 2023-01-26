@@ -281,6 +281,17 @@ Please note that this is just one example of an Account Discovery technique, the
     status=%jevt.value[/responseElements/PasswordRecoveryRequested])
   priority: WARNING
   source: aws_cloudtrail
-  tags: [initial_access, valid_accounts, A0001]
+  tags: [initial_access, valid_accounts, T1078]
 
+# https://attack.mitre.org/techniques/T1078/
+
+- rule: Attempt to modify authentication process
+  desc: This rule detects attempts to modify the authentication process, a technique used in the Credential Access tactic of MITRE ATT&CK.
+  condition: (aws_cloudtrail.event_name = "ModifyAuthenticationInfo" and aws_cloudtrail.error_code = "") or (aws_cloudtrail.event_name = "ModifyIdentityIdFormat" and aws_cloudtrail.error_code = "")
+  output: "Attempt to modify authentication process detected in AWS CloudTrail event (user=%aws_cloudtrail.user_identity.user_name% event_name=%aws_cloudtrail.event_name%)"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [credential_access, modify_authentication_process, T1556]  
+  
+# https://attack.mitre.org/techniques/T1556/
 
