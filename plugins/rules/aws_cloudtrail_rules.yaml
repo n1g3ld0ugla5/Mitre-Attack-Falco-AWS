@@ -247,5 +247,15 @@ Please note that this is just one example of an Account Discovery technique, the
 # Keep in mind that this is just one example of how the technique could be implemented, in practice, it could be implemented in various ways.
 # https://attack.mitre.org/techniques/T1080/
 
-
+- rule: Detect S3 Bucket Listing
+  desc: Detects listing of S3 buckets, which can be used for data collection from cloud accounts
+  condition: aws_cloudtrail.event_name contains "ListBuckets"
+  output: "Detected listing of S3 buckets (user: %user%)"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [collection, data_from_cloud_accounts, T1080]
+  
+# This rule will detect the listing of all S3 buckets, if you want to detect the listing of specific S3 buckets, you can add specific conditions
+# https://attack.mitre.org/techniques/T1530/  
+  
 
