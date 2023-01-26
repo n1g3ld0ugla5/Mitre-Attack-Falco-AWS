@@ -253,9 +253,23 @@ Please note that this is just one example of an Account Discovery technique, the
   output: "Detected listing of S3 buckets (user: %user%)"
   priority: WARNING
   source: aws_cloudtrail
-  tags: [collection, data_from_cloud_accounts, T1080]
+  tags: [collection, data_from_cloud_accounts, T1530]
   
+# Data From Cloud Storage
 # This rule will detect the listing of all S3 buckets, if you want to detect the listing of specific S3 buckets, you can add specific conditions
 # https://attack.mitre.org/techniques/T1530/  
   
+- rule: Detect Phishing Attempts
+  desc: Phishing attempts may be logged in CloudTrail events
+  condition: cloudtrail.event_name = CreateBucket and cloudtrail.request_parameters.bucket_name matches "phish*"
+  output: "Possible phishing attempt detected via CloudTrail event (user=%user.name event_name=%cloudtrail.event_name bucket_name=%cloudtrail.request_parameters.bucket_name)"
+  priority: INFO
+  source: aws_cloudtrail  
+  tags: [initial_access, phishing, T1566]
+
+# Rule triggers if CloudTrail event is detected with event name "CreateBucket" and the bucket name in the request parameters starts with "phish". 
+# This is a simple idea and likely would not catch any real-world phishing attempts
+# https://attack.mitre.org/techniques/T1566/
+
+
 
