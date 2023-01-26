@@ -142,8 +142,23 @@ Please note that this is just one example of an Account Discovery technique, the
   condition: cloudtrail_event.event_name = "RunInstances" and cloudtrail_event.user_identity.type = "IAMUser" and cloudtrail_event.request_parameters.image_id = "ami-*"
   output: "Exploit Public-Facing Application detected for user %user.name% with image_id %cloudtrail_event.request_parameters.image_id%"
   priority: WARNING
+  source: aws_cloudtrail  
   tags: [initial_access, exploit_public_facing_application, T1190]
 
 # This rule triggers an when the CloudTrail event "RunInstances" is detected and the user identity type is an IAM user 
 # The request parameters must have an image_id starting with 'ami-', it will also include the user name and the image_id in the output.
 # https://attack.mitre.org/techniques/T1190/
+
+- rule: Detect User Execution
+  desc: Detects user execution on AWS
+  condition: cloudtrail_event.event_name = "RunCommand" and cloudtrail_event.user_identity.type = "IAMUser" and cloudtrail_event.request_parameters.commands contains "*"
+  output: "User Execution detected for user %user.name% with command %cloudtrail_event.request_parameters.commands%"
+  priority: WARNING
+  source: aws_cloudtrail  
+  tags: [execution, user_execution, T1204]
+  
+# This rule triggers when a CloudTrail event "RunCommand" is detected & the user identity type is an IAM user & request parameters contains commands
+# It will also include the user name and the command on the alert output.
+# https://attack.mitre.org/techniques/T1204/
+
+
