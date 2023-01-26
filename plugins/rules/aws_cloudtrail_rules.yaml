@@ -190,3 +190,16 @@ Please note that this is just one example of an Account Discovery technique, the
 # This rule detects a wide range of event triggered executions. To detect specific actions - add more conditions using the aws_cloudtrail fields.
 # https://attack.mitre.org/techniques/T1546/
   
+- rule: Detect CloudTrail Logs Deletion
+  desc: Detects deletion of CloudTrail logs, which can be used for defense evasion
+  condition: aws_cloudtrail.event_name contains "DeleteTrail"
+  output: "Detected deletion of CloudTrail logs (user: %user% trail_name: %aws_cloudtrail.trail_name%)"
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [defense_evasion, hide_artifacts, T1564]
+
+# Rules triggeres when an event with the name "DeleteTrail" is detected in the AWS CloudTrail logs
+# https://attack.mitre.org/techniques/T1564/
+# 
+  
+  
