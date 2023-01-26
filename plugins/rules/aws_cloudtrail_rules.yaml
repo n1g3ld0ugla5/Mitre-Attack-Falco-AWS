@@ -206,6 +206,7 @@ Please note that this is just one example of an Account Discovery technique, the
   condition: aws_cloudtrail.event_name contains "UpdateUser"
   output: "Detected modification of IAM user (user: %user% user_name: %aws_cloudtrail.user_name%)"
   priority: WARNING
+  enabled: false
   source: aws_cloudtrail
   tags: [credential_access, forge_web_credentials, T1606]
 
@@ -213,4 +214,22 @@ Please note that this is just one example of an Account Discovery technique, the
 # The output message includes the user that modified the user, and the user_name of the IAM user that was modified.
 # It detects modification of all IAM users, if you want to detect the modification of specific IAM users, you can add more conditions to avoid false/positives
 # https://attack.mitre.org/techniques/T1606/  
-  
+
+- rule: List Buckets
+  desc: Detect listing of all S3 buckets.
+  condition:
+    ct.name="ListBuckets" and not ct.error exists
+  output:
+    A list of all S3 buckets has been requested.
+    (requesting user=%ct.user,
+     requesting IP=%ct.srcip,
+     AWS region=%ct.region,
+     host=%ct.request.host)
+  priority: WARNING
+  enabled: false
+  source: aws_cloudtrail  
+  tags: [discovery, cloud_infrastructure_discovery, T1580]
+
+# Alternatively, alert on event with the name "DescribeInstances" in the AWS CloudTrail logs, which indicates that an EC2 instances were listed.
+# Detect listing of S3 buckets or EC2 instances, which can be used for cloud infrastructure discovery
+# https://attack.mitre.org/techniques/T1580/
