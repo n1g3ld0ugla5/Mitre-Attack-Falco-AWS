@@ -1,4 +1,4 @@
-- rule: Drive-by Compromise in AWS
+- rule: Drive-by Compromise
   desc: Detects suspicious behavior in AWS that may indicate a Drive-by Compromise
   condition: (event.event_name in (CreateAccessKey, DeleteAccessKey, CreateUser, DeleteUser) or event.event_name starts with "Attach") and event.source_ip != "172.31.0.0/16"
   output: "Drive-by Compromise in AWS detected from IP address: %event.source_ip% for user: %event.user_identity.user_name%"
@@ -9,8 +9,9 @@
 # This rule checks for events with the name "CreateAccessKey", "DeleteAccessKey", "CreateUser", "DeleteUser" and "Attach" in the AWS CloudTrail event
 # It also checks that the source IP is not from the VPC range (172.31.0.0/16)
 # If it matches, it triggers an alert with the message "Drive-by Compromise in AWS detected from "IP address" for "user" with priority WARNING.
+# https://attack.mitre.org/techniques/T1189/
 
-- rule: Detect Serverless Execution from Lambda
+- rule: Serverless Execution
   desc: Detects serverless execution in AWS Lambda
   condition: event.event_name = "CreateFunction" and event.request_parameters.function_name starts with "lambda"
   output: "Serverless execution detected in AWS Lambda function: %event.request_parameters.function_name%"
@@ -24,8 +25,9 @@
 # - the input and output parameters
 # - or the response. 
 # To have more detailed information, you can use CloudWatch Logs, CloudWatch events, X-Ray, or other third-party tools in conjunction with CloudTrail.
+# https://attack.mitre.org/techniques/T1648/
 
-- rule: Detect Account Manipulation in AWS
+- rule: Account Manipulation
   desc: Detects suspicious behavior in AWS that may indicate Account Manipulation
   condition: event.event_name in (CreateAccessKey, DeleteAccessKey, CreateUser, DeleteUser, EnableMFADevice, DisableMFADevice, CreatePolicy, DeletePolicy) and event.user_identity.user_name != "root"
   output: "Account Manipulation in AWS detected from user: %event.user_identity.user_name% for event: %event.event_name%"
@@ -35,8 +37,9 @@
   
 # The rule checks for suspicious events within the AWS CloudTrail event, and it also checks that the event was not performed by the root user.
 # If it matches, it triggers an alert with the message "Account Manipulation in AWS detected from user" - This is a critical alert criteria.
+# https://attack.mitre.org/techniques/T1098/
 
-- rule: Detect Domain Policy Modification
+- rule: Domain Policy Modification
   desc: Detects when a domain policy is modified
   condition: evt.type = S3_EVENT and (evt.name = PutBucketPolicy or evt.name = DeleteBucketPolicy) and evt.bucket = "your-bucket-name-here"
   output: "Domain policy modification detected in bucket: your-bucket-name-here"
@@ -48,6 +51,24 @@
 # It also checks that the event is for a specific bucket by using the evt.bucket field. 
 # Please note that, you need to replace the your-bucket-name-here with the actual name of your S3 bucket
 # You also need to configure the AWS Cloudtrail to send the logs to a S3 bucket and then configure the Falco to read the logs from that S3 bucket.
+# https://attack.mitre.org/techniques/T1484/
+
+- rule: Cloud Storage Object Discovery
+  desc: Detect a Read operation on objects in watched buckets.
+  condition: >-
+    not jevt.value[/errorCode] exists and jevt.value[/eventName]="GetObject" and
+    jevt.value[/requestParameters/bucketName] in (watched_buckets)
+  output: >-
+    Detected a Read operation on objects in bucket on watchlist (requesting
+    user=%jevt.value[/userIdentity/arn], requesting
+    IP=%jevt.value[/sourceIPAddress], AWS region=%jevt.value[/awsRegion], bucket
+    name=%jevt.value[/requestParameters/bucketName], object
+    key=%jevt.value[/requestParameters/key])
+  priority: warning
+  source: aws_cloudtrail  
+  tags: [discovery, cloud_storage_object_discovery, T1619]
+  
+# https://attack.mitre.org/techniques/T1619/
 
 - rule: Detect AWS Brute Force
   desc: Detects multiple failed login attempts within a short period of time
