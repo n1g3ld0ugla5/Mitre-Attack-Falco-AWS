@@ -114,6 +114,18 @@
 # Please note that this is just one example of an Account Discovery technique, there are many other techniques and ways to detect them
 # This rule should be used as an example and not as a definitive solution.  
 # https://attack.mitre.org/techniques/T1087/
+
+- rule: Cloud Service Discovery
+  desc: Detect AWS command execution on unused regions which indicates a discovery attempt on a cloud service
+  condition: not aws.errorCode exists and aws.region in (disallowed_aws_regions)
+  output: >-
+    An AWS command has been executed on an unused region (requesting
+    user=%aws.user, requesting IP=%aws.sourceIP, AWS region=%aws.region)
+  priority: CRITICAL
+  source: aws_cloudtrail  
+  tags: [discovery, cloud_service_discovery, T1526]
+
+# https://attack.mitre.org/techniques/T1526/
   
 - rule: Internal Spearphishing
   desc: Detects attempts to perform internal spearphishing through the use of email services in AWS
