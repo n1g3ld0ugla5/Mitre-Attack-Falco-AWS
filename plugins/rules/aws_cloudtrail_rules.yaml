@@ -248,7 +248,7 @@
 # It will also include the user name and the command on the alert output.
 # https://attack.mitre.org/techniques/T1204/
 
-- rule: Create AWS user
+- rule: Create Account
   desc: Detect creation of an IAM account.
   condition:
     ct.name="CreateUser" and not ct.error exists
@@ -265,7 +265,7 @@
 # This rule is triggered when a new IAM account is created
 # https://attack.mitre.org/techniques/T1136/
 
-- rule: Detect Event-Triggered Execution
+- rule: Event-Triggered Execution
   desc: Detect any AWS command/event execution.
   condition: not aws.errorCode exists
   output: >-
