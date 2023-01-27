@@ -266,15 +266,17 @@
 # https://attack.mitre.org/techniques/T1136/
 
 - rule: Detect Event-Triggered Execution
-  desc: Detects event-triggered execution, which can be used for privilege escalation
-  condition: aws.eventName contains "RunCommand" or aws.eventName contains "Invoke"
-  output: "Detected event-triggered execution (user: %user% command: %aws_cloudtrail.command%)"
-  priority: WARNING
+  desc: Detect any AWS command/event execution.
+  condition: not aws.errorCode exists
+  output: >-
+    An AWS command has been executed (requesting
+    user=%aws.user, requesting IP=%aws.sourceIP, AWS region=%aws.region)
+  priority: critical
   source: aws_cloudtrail
   tags: [persistence, create_account, T1136]
  
-# Triggers when an event with name "RunCommand" or "Invoke" is detected in the AWS CloudTrail logs, which indicates that a command/function was executed
-# This rule detects a wide range of event triggered executions. To detect specific actions - add more conditions using the aws_cloudtrail fields.
+# This rule detects literally ANY event-triggered executions. 
+# To detect specific actions - add more conditions using the aws_cloudtrail fields.
 # https://attack.mitre.org/techniques/T1546/
   
 - rule: Detect CloudTrail Logs Deletion
