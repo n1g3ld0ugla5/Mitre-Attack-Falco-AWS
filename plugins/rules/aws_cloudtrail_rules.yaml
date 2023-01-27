@@ -88,19 +88,20 @@
   
 # https://attack.mitre.org/techniques/T1619/
 
-- rule: Detect AWS Brute Force
+- rule: Brute Force
   desc: Detects multiple failed login attempts within a short period of time
   condition: (evt.type = cloudtrail and evt.source = aws_cloudtrail and evt.event.eventname = ConsoleLogin and evt.event.errorcode = "FailedAuthentication") or (evt.type = cloudtrail and evt.source = aws_cloudtrail and evt.event.eventname = "GetSessionToken" and evt.event.errorcode = "AccessDenied")
   output: "Brute force attack detected on AWS console login or session token request"
   priority: ERROR
   source: aws_cloudtrail
-  tags: [credential_access, domain_policy_modification, T1098]
+  tags: [credential_access, brute_force, T1110]
   
 # This rule checks for events of type "cloudtrail" with source "aws_cloudtrail" & eventname "ConsoleLogin" or "GetSessionToken" with errorcodes
 # The error codes "FailedAuthentication" or "AccessDenied" respectively have to be triggered within a short period of time. 
 # If the rule matches, it will output the message "Brute force attack detected on AWS console login or session token request"
+# https://attack.mitre.org/techniques/T1110/
 
-- rule: Account Discovery in AWS
+- rule: Account Discovery
   desc: Detects attempts to discover AWS accounts through the use of the 'ListAccounts' action
   condition: aws.event.eventName = "ListAccounts"
   output: "Detected Account Discovery attempt in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% region=%aws_cloudtrail.aws_region%"
@@ -110,10 +111,11 @@
   
 # The rule will trigger a warning when it detects an event with the name "ListAccounts" in the AWS CloudTrail logs
 # This is an indication of an attempt to discover AWS accounts. Additionally, the rule will output the user, action & region information for the event.
-
-Please note that this is just one example of an Account Discovery technique, there are many other techniques and ways to detect them, this rule should be used as an example and not as a definitive solution.  
+# Please note that this is just one example of an Account Discovery technique, there are many other techniques and ways to detect them
+# This rule should be used as an example and not as a definitive solution.  
+# https://attack.mitre.org/techniques/T1087/
   
-- rule: Internal Spearphishing in AWS
+- rule: Internal Spearphishing
   desc: Detects attempts to perform internal spearphishing through the use of email services in AWS
   condition: aws.event.eventName = "SendEmail" and aws.request_parameters.Destination.ToAddresses contains "internal"
   output: "Detected Internal Spearphishing attempt in AWS: user=%aws_cloudtrail.user_identity.arn% action=%aws_cloudtrail.event.eventName% recipients=%aws_cloudtrail.request_parameters.Destination.ToAddresses%"
@@ -126,6 +128,7 @@ Please note that this is just one example of an Account Discovery technique, the
 # Additionally, the rule will output the user, action and recipient information for the event.
 # Please note that this is just one example of an Internal Spearphishing technique, there are many other techniques and ways to detect them
 # This rule should be used as an example and not as a definitive solution.
+# https://attack.mitre.org/techniques/T1534/
 
 - rule: Automated Collection in AWS
   desc: Detects attempts to perform automated collection through the use of AWS Lambda
@@ -139,20 +142,17 @@ Please note that this is just one example of an Account Discovery technique, the
 # These indicate the use of AWS Lambda, a service that allows the creation & execution of scripts, that can be used to automate the collection of data. 
 # Additionally, the rule will output the user, action, and the name of the function that was created or invoked.
 
-- rule: Console Root Login Without MFA
-  desc: Detect root console login without MFA.
-  condition:
-    ct.name="ConsoleLogin" and not ct.error exists
-    and json.value[/additionalEventData/MFAUsed]="No"
-    and ct.user.identitytype!="AssumedRole"
-    and json.value[/responseElements/ConsoleLogin]="Success"
-    and ct.user.identitytype="Root"
-  output:
-    Detected a root console login without MFA.
-    (requesting user=%ct.user,
-     requesting IP=%ct.srcip,
-     AWS region=%ct.region)
-  priority: CRITICAL
+- rule: Account Access Removal
+  desc: Detect the removal of an AWS user account.
+  condition: >-
+    aws.eventSource="iam.amazonaws.com" and aws.eventName="DeleteUser" and not
+    aws.errorCode exists
+  output: >-
+    An AWS user has been deleted (requesting user=%aws.user, requesting
+    IP=%aws.sourceIP, AWS region=%aws.region,
+    arn=%jevt.value[/userIdentity/arn], user
+    deleted=%jevt.value[/requestParameters/userName])
+  priority: info
   source: aws_cloudtrail  
   tags: [impact, account_access_removal, T1531]
   
