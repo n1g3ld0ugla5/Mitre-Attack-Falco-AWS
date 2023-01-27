@@ -311,3 +311,25 @@ Please note that this is just one example of an Account Discovery technique, the
   
 # https://attack.mitre.org/techniques/T1485/  
 
+- rule: Run Instances from Unused/Unsupported Cloud Region
+  desc: >-
+    Detect launching of a specified number of instances in a non-approved region.
+  condition: >-
+    aws.eventName="RunInstances" and not aws.errorCode exists and not aws.region
+    in (approved_regions)
+  output: >-
+    A number of instances have been launched in a non-approved region.
+    (requesting user=%aws.user, requesting IP=%aws.sourceIP, AWS
+    region=%aws.region, arn=%jevt.value[/userIdentity/arn], availability
+    zone=%jevt.value[/requestParameters/availabilityZone], subnet
+    id=%jevt.value[/requestParameters/subnetId], reservation
+    id=%jevt.value[/responseElements/reservationId], image id=%aws.ec2.imageId)
+  priority: WARNING
+  source: aws_cloudtrail  
+  tags: [defense_evasion, unused_unsupported_cloud_regions, T1535]
+  
+# https://attack.mitre.org/techniques/T1535/ 
+
+
+
+
