@@ -27,6 +27,24 @@
 # To have more detailed information, you can use CloudWatch Logs, CloudWatch events, X-Ray, or other third-party tools in conjunction with CloudTrail.
 # https://attack.mitre.org/techniques/T1648/
 
+- rule: Implant Internal Image
+  desc: Detect a new image has been implanted in an ECR registry
+  condition: >-
+    aws.eventSource="ecr.amazonaws.com" and aws.eventName="PutImage" and not
+    aws.errorCode exists
+  output: >-
+    An image has been pushed to ECR registry (region=%aws.region,
+    account=%aws.accountId, repository=%aws.ecr.repository,
+    tag=%aws.ecr.image.tag) (requesting user=%aws.user, requesting
+    IP=%aws.sourceIP, AWS region=%aws.region,
+    arn=%jevt.value[/userIdentity/arn], repository=%aws.ecr.repository,
+    tag=%aws.ecr.image.tag)
+  priority: INFO
+  source: aws_cloudtrail  
+  tags: [persistence, implant_internal_image, T1525]
+
+# https://attack.mitre.org/techniques/T1525/
+
 - rule: Account Manipulation
   desc: Detects suspicious behavior in AWS that may indicate Account Manipulation
   condition: event.event_name in (CreateAccessKey, DeleteAccessKey, CreateUser, DeleteUser, EnableMFADevice, DisableMFADevice, CreatePolicy, DeletePolicy) and event.user_identity.user_name != "root"
