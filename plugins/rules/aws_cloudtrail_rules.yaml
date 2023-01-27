@@ -11,6 +11,25 @@
 # If it matches, it triggers an alert with the message "Drive-by Compromise in AWS detected from "IP address" for "user" with priority WARNING.
 # https://attack.mitre.org/techniques/T1189/
 
+- rule: Modify Cloud Compute Infrastructure
+  desc: Detect launching of a specified number of instances.
+  condition:
+    ct.name="RunInstances" and not ct.error exists
+  output:
+    A number of instances have been launched.
+    (requesting user=%ct.user,
+     requesting IP=%ct.srcip,
+     AWS region=%ct.region,
+     availability zone=%ct.request.availabilityzone,
+     subnet id=%ct.response.subnetid,
+     reservation id=%ct.response.reservationid)
+  priority: WARNING
+  source: aws_cloudtrail  
+  tags: [defense_evasion, modify_cloud_compute_infrastructure, T1578]
+
+# Source: https://github.com/falcosecurity/plugins/blob/master/plugins/cloudtrail/rules/aws_cloudtrail_rules.yaml#L270
+# Technique: https://attack.mitre.org/techniques/T1578/
+
 - rule: Serverless Execution
   desc: Detects serverless execution in AWS Lambda
   condition: event.event_name = "CreateFunction" and event.request_parameters.function_name starts with "lambda"
