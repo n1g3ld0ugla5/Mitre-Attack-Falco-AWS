@@ -330,6 +330,22 @@ Please note that this is just one example of an Account Discovery technique, the
   
 # https://attack.mitre.org/techniques/T1535/ 
 
+- rule: Steal Application Access Token
+  desc: >-
+    Detect retrieval of the contents of the encrypted fields SecretString or
+    SecretBinary from the specified version of a secret - whichever contains
+    content.
+  condition: aws.eventName="GetSecretValue" and not aws.errorCode exists
+  output: >-
+    The contents of the encrypted fields SecretString or SecretBinary from the
+    specified version of a secret have been retrieved. (requesting
+    user=%aws.user, requesting IP=%aws.sourceIP, AWS region=%aws.region,
+    arn=%jevt.value[/userIdentity/arn], secret
+    id=%jevt.value[/requestParameters/secretId])
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [credential_access, steal_application_access_token, T1528]
 
+# https://attack.mitre.org/techniques/T1528/
 
 
