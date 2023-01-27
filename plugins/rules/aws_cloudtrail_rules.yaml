@@ -46,6 +46,23 @@
 # To have more detailed information, you can use CloudWatch Logs, CloudWatch events, X-Ray, or other third-party tools in conjunction with CloudTrail.
 # https://attack.mitre.org/techniques/T1648/
 
+- rule: Impair Defenses
+  desc: The CloudTrail logging has been disabled, this could be potentially impair defenses.
+  condition:
+    ct.name="StopLogging" and not ct.error exists
+  output:
+    The CloudTrail logging has been disabled.
+    (requesting user=%ct.user,
+     requesting IP=%ct.srcip,
+     AWS region=%ct.region,
+     resource name=%ct.request.name)
+  priority: WARNING
+  source: aws_cloudtrail
+  tags: [defense_evasion, impair_defenses, T1562]
+
+# Source: https://github.com/falcosecurity/plugins/blob/254cd1888d96ab2f79e7281ea4dfd54b64489772/plugins/cloudtrail/rules/aws_cloudtrail_rules.yaml#L424
+# Technique: https://attack.mitre.org/techniques/T1562/
+
 - rule: Implant Internal Image
   desc: Detect a new image has been implanted in an ECR registry
   condition: >-
