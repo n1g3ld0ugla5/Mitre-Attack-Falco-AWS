@@ -399,4 +399,13 @@
 
 # https://attack.mitre.org/techniques/T1528/
 
-
+- rule: Password Policy Discovery
+  desc: Detect updating password policy in any case as sign of discovery
+  condition: >-
+    aws.eventName="UpdateAccountPasswordPolicy" and not aws.errorCode exists
+  output: Basically detects any and all changes to password policy (requesting user=%aws.user, requesting IP=%aws.sourceIP, AWS region=%aws.region)
+  priority: INFO
+  source: aws_cloudtrail  
+  tags: [discovery, password_policy_discovery, T1201]
+  
+# https://attack.mitre.org/techniques/T1201/
