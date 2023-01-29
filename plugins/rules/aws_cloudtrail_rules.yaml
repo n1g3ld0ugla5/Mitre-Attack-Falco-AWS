@@ -11,6 +11,24 @@
 # If it matches, it triggers an alert with the message "Drive-by Compromise in AWS detected from "IP address" for "user" with priority WARNING.
 # https://attack.mitre.org/techniques/T1189/
 
+- rule: Steal or Forge Authentication Certificates
+  desc: Detect a user requesting a certificate or trying to gain credential access
+  condition: >-
+    aws.eventName="ResendValidationEmail" or
+    aws.eventName="RequestCertificate" and not
+    aws.errorCode exists
+  output: >-
+    An AWS user is requesting an authentication certificate or requesting a validation email
+    (requesting user=%aws.user, requesting IP=%aws.sourceIP, AWS region=%aws.region)
+  priority: info
+  source: aws_cloudtrail  
+  tags: [credential_access, steal_forge_auth_creds, T1649]
+  
+# https://attack.mitre.org/techniques/T1649/
+# https://www.gorillastack.com/blog/real-time-events/cloudtrail-event-names/#certificate-manager-cloudtrail
+# ResendValidationEmail: An email has been resent that requests domain ownership validation.
+# RequestCertificate: An ACM certificate has been requested for use with other services.
+
 - rule: Modify Cloud Compute Infrastructure
   desc: Detect launching of a specified number of instances.
   condition:
