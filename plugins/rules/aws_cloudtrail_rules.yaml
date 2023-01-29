@@ -393,14 +393,37 @@
 # https://attack.mitre.org/techniques/T1078/
 
 - rule: Attempt to modify authentication process
-  desc: This rule detects attempts to modify the authentication process, a technique used in the Credential Access tactic of MITRE ATT&CK.
-  condition: (aws_cloudtrail.event_name = "ModifyAuthenticationInfo" and aws_cloudtrail.error_code = "") or (aws_cloudtrail.event_name = "ModifyIdentityIdFormat" and aws_cloudtrail.error_code = "")
-  output: "Attempt to modify authentication process detected in AWS CloudTrail event (user=%aws_cloudtrail.user_identity.user_name% event_name=%aws_cloudtrail.event_name%)"
+  desc: This rule detects attempts to modify the authentication process, in this case deleting the authorizer altogether.
+  condition: aws.eventName="DeleteAuthorizer" and not aws.errorCode exists
+  output: "Attempt to delete an authentication authorizer"
+  priority: CRITICAL
+  source: aws_cloudtrail
+  tags: [defense_evasion, modify_authentication_process, T1556]  
+  
+# https://attack.mitre.org/techniques/T1556/
+# https://gist.github.com/pkazi/8b5a1374771f6efa5d55b92d8835718c#file-cloudtraileventnames-list-L586
+
+- rule: Attempt to modify authentication process
+  desc: This rule detects attempts to modify the authentication process, in this case deleting the authorizer altogether.
+  condition: aws.eventName="DescribeAuthorizer" and not aws.errorCode exists
+  output: "Attempt to describe the authentication authorizer"
   priority: WARNING
   source: aws_cloudtrail
   tags: [credential_access, modify_authentication_process, T1556]  
   
 # https://attack.mitre.org/techniques/T1556/
+# https://gist.github.com/pkazi/8b5a1374771f6efa5d55b92d8835718c#file-cloudtraileventnames-list-L977
+
+- rule: Attempt to modify authentication process
+  desc: This rule detects attempts to modify the authentication process, in this case deleting the authorizer altogether.
+  condition: aws.eventName="GetCertificateAuthorityCertificate" and not aws.errorCode exists
+  output: "Attempt to describe the authentication authorizer"
+  priority: INFO
+  source: aws_cloudtrail
+  tags: [persistence, modify_authentication_process, T1556]  
+  
+# https://attack.mitre.org/techniques/T1556/
+# https://gist.github.com/pkazi/8b5a1374771f6efa5d55b92d8835718c#file-cloudtraileventnames-list-L1570
 
 - rule: Delete Group
   desc: Detect deletion of a user group - Data Destruction
